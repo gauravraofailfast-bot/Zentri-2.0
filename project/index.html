@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<title>Zentri — Learn like it's a game</title>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="shell.jsx"></script>
+<script type="text/babel" src="scenes-a.jsx"></script>
+<script type="text/babel" src="scenes-b.jsx"></script>
+<script type="text/babel" src="scenes-c.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "gameplay": "lighthouse",
+  "adaptive": true,
+  "tone": "hype"
+}/*EDITMODE-END*/;
+
+function App() {
+  const [scene, setScene] = useState(() => localStorage.getItem('z.scene') || 'onboarding');
+  const [player, setPlayer] = useState(() => JSON.parse(localStorage.getItem('z.player') || 'null') || { name: 'Aarav', intent: 'concept' });
+  const [progress, setProgress] = useState({ confidence: 62 });
+  const [activeMission, setActiveMission] = useState(null);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [tweaks, setTweaks] = useState(TWEAK_DEFAULTS);
+  const [tweaksOpen, setTweaksOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+
+  useEffect(() => { localStorage.setItem('z.scene', scene); }, [scene]);
+  useEffect(() => { localStorage.setItem('z.player', JSON.stringify(player)); }, [player]);
+
+  // Tweaks protocol
+  useEffect(() => {
+    const onMsg = (e) => {
+      if (e.data?.type === '__activate_edit_mode') setEditMode(true);
+      if (e.data?.type === '__deactivate_edit_mode') setEditMode(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const updateTweak = (k, v) => {
+    const next = { ...tweaks, [k]: v };
+    setTweaks(next);
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [k]: v } }, '*');
+  };
+
+  const handleNav = (id) => {
+    const map = { home: 'lobby', world: 'world', raid: 'raid', progress: 'progress' };
+    setScene(map[id] || id);
+  };
+
+  const startMission = (m) => {
+    setActiveMission(m);
+    const kind = tweaks.gameplay === 'lighthouse' ? 'lighthouse' : (m.kind || 'archer');
+    setScene(kind === 'light' || kind === 'lighthouse' ? 'play-lighthouse' : 'play-archer');
+  };
+
+  const finishMission = () => {
+    setProgress(p => ({ ...p, confidence: Math.min(100, p.confidence + 4) }));
+    setShowFeedback(true);
+    setScene('world');
+  };
+
+  return (
+    <div className="stage">
+      <div className="phone">
+        <div className="screen">
+          {scene === 'onboarding' && (
+            <OnboardingScene tweaks={tweaks} onDone={(p) => { setPlayer(p); setScene('lobby'); }}/>
+          )}
+          {scene === 'lobby' && (
+            <LobbyScene player={player} progress={progress}
+              onNav={handleNav}
+              onEnterWorld={() => setScene('world')}
+              onMultiplayer={() => setScene('raid')}/>
+          )}
+          {scene === 'world' && (
+            <WorldScene progress={progress}
+              onBack={() => setScene('lobby')}
+              onNav={handleNav}
+              onEnterMission={(m) => {
+                setActiveMission(m);
+                setScene('mission-intro');
+              }}/>
+          )}
+          {scene === 'mission-intro' && activeMission && (
+            <MissionIntro mission={{
+              num: '03',
+              title: activeMission.title,
+              story: activeMission.kind === 'light'
+                ? 'Dusk fell. A ship is adrift somewhere on the horizon. You\u2019re in the lighthouse. The only measurement you have is how far you lower your eyes to see it.'
+                : 'The Dusk Minar holds an old banner. Your bow draws a hypotenuse across the sky. Master sin, cos, tan — hit the banner without ever measuring the rope.',
+              learns: activeMission.kind === 'light'
+                ? ['Angle of depression — what it means and how to sight one',
+                   'How tan θ turns an angle into a distance',
+                   'Solving D = H / tan θ from a real scene']
+                : ['Name the three sides of a right triangle from any angle',
+                   'Feel sin θ, cos θ, tan θ as the triangle changes',
+                   'Special angles: 30°, 45°, 60°'],
+            }} onBack={() => setScene('world')} onStart={() => startMission(activeMission)}/>
+          )}
+          {scene === 'play-archer' && (
+            <ArcherMission tweaks={tweaks} onDone={finishMission}/>
+          )}
+          {scene === 'play-lighthouse' && (
+            <LighthouseMission tweaks={tweaks} onDone={finishMission}/>
+          )}
+          {scene === 'raid' && (
+            <RaidScene onBack={() => setScene('lobby')} onNav={handleNav}/>
+          )}
+          {scene === 'progress' && (
+            <ProgressScene progress={progress} onBack={() => setScene('lobby')} onNav={handleNav}/>
+          )}
+
+          <FeedbackSheet show={showFeedback} onClose={() => setShowFeedback(false)} onSubmit={() => {}}/>
+
+          <div className="home-ind"/>
+        </div>
+      </div>
+
+      {editMode && (
+        <div className="tweaks-panel">
+          <div className="row between" style={{ marginBottom: 14 }}>
+            <h4>Tweaks</h4>
+            <span className="mono" style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>LIVE</span>
+          </div>
+
+          <div className="group">
+            <label>Gameplay for this concept</label>
+            <div className="opts">
+              {['archer', 'lighthouse'].map(k => (
+                <button key={k} className={tweaks.gameplay === k ? 'on' : ''}
+                  onClick={() => updateTweak('gameplay', k)}>
+                  {k === 'archer' ? '🏹 Archer' : '🗼 Lighthouse'}
+                </button>
+              ))}
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>
+              Same concept (sin/cos/tan), two different mechanics.
+            </div>
+          </div>
+
+          <div className="group">
+            <label>Invisible AI nudges</label>
+            <div className="opts">
+              <button className={tweaks.adaptive ? 'on' : ''} onClick={() => updateTweak('adaptive', true)}>On</button>
+              <button className={!tweaks.adaptive ? 'on' : ''} onClick={() => updateTweak('adaptive', false)}>Off</button>
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>
+              After 2 near-misses, the game quietly offers a hint.
+            </div>
+          </div>
+
+          <div className="group">
+            <label>Coach tone</label>
+            <div className="opts">
+              {[['coach','Coach'], ['hype','Hype'], ['narrator','Narrator']].map(([k,l]) => (
+                <button key={k} className={tweaks.tone === k ? 'on' : ''} onClick={() => updateTweak('tone', k)}>{l}</button>
+              ))}
+            </div>
+          </div>
+
+          <div className="group">
+            <label>Jump to</label>
+            <div className="opts">
+              {['onboarding','lobby','world','mission-intro','play-archer','play-lighthouse','raid','progress'].map(s => (
+                <button key={s} className={scene === s ? 'on' : ''} onClick={() => {
+                  if (s === 'mission-intro') setActiveMission({ title: 'Archer\u2019s Angle', kind: 'archer' });
+                  setScene(s);
+                }}>{s}</button>
+              ))}
+            </div>
+          </div>
+
+          <div className="group">
+            <label>Feedback sheet</label>
+            <div className="opts">
+              <button onClick={() => setShowFeedback(true)}>Open pulse check</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+
+</body>
+</html>

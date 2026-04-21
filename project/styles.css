@@ -1,0 +1,371 @@
+/* Zentri — Dusk Skyline Design System */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  /* Dusk sky palette */
+  --sky-top: #0a1028;
+  --sky-mid: #1a1f4d;
+  --sky-low: #3b2a62;
+  --horizon: #8a3a5e;
+  --ember: #ff7849;
+  --ember-glow: #ffb37a;
+  --sun: #ffd166;
+
+  /* UI neutrals */
+  --ink: #0a0f24;
+  --ink-2: #131a38;
+  --paper: #f6efe3;
+  --muted: rgba(255,255,255,0.62);
+  --muted-2: rgba(255,255,255,0.38);
+  --line: rgba(255,255,255,0.12);
+  --line-2: rgba(255,255,255,0.06);
+
+  /* Accents */
+  --teal: #5eead4;
+  --teal-dim: #2dd4bf;
+  --violet: #a78bfa;
+  --pink: #f472b6;
+  --gold: #fbbf24;
+
+  /* Radii */
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 24px;
+  --r-xl: 32px;
+
+  /* Fonts */
+  --f-display: 'Space Grotesk', system-ui, sans-serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0; padding: 0;
+  font-family: var(--f-display);
+  background: #050815;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  overflow: hidden;
+}
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+/* ———— Stage that holds device frame ———— */
+.stage {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(138,58,94,0.25), transparent 40%),
+    radial-gradient(ellipse at 80% 100%, rgba(94,234,212,0.08), transparent 45%),
+    linear-gradient(180deg, #050815 0%, #0a0f24 60%, #05070f 100%);
+  padding: 20px;
+}
+
+/* ———— Phone frame ———— */
+.phone {
+  width: 402px; height: 874px;
+  max-height: calc(100vh - 40px);
+  aspect-ratio: 402 / 874;
+  position: relative;
+  border-radius: 52px;
+  background: #000;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 2px #1a1a22,
+    0 0 0 14px #0a0a0f,
+    0 40px 120px rgba(0,0,0,0.5),
+    0 0 100px rgba(255,120,73,0.08);
+}
+@media (max-width: 440px) {
+  .stage { padding: 0; }
+  .phone { width: 100vw; height: 100vh; max-height: 100vh; border-radius: 0; box-shadow: none; }
+  .phone::before { display: none !important; }
+}
+.phone::before {
+  content: '';
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 34px; border-radius: 20px;
+  background: #000;
+  z-index: 100;
+}
+
+.screen {
+  position: absolute; inset: 0;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+/* Status bar */
+.statusbar {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 54px; z-index: 50;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 32px 0;
+  font-family: var(--f-display);
+  font-weight: 600; font-size: 15px;
+  color: #fff;
+  pointer-events: none;
+}
+.statusbar .icons { display: flex; gap: 6px; align-items: center; }
+
+/* Home indicator */
+.home-ind {
+  position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+  width: 134px; height: 5px; border-radius: 100px;
+  background: rgba(255,255,255,0.35);
+  z-index: 100; pointer-events: none;
+}
+
+/* ———— Dusk sky backgrounds (reusable) ———— */
+.sky-dusk {
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 100%, rgba(255,120,73,0.45) 0%, rgba(138,58,94,0.4) 25%, transparent 55%),
+    radial-gradient(ellipse 80% 60% at 30% 90%, rgba(255,179,122,0.35) 0%, transparent 40%),
+    linear-gradient(180deg, #0a1028 0%, #1a1f4d 35%, #3b2a62 60%, #8a3a5e 82%, #ff7849 100%);
+}
+.sky-night {
+  background:
+    radial-gradient(ellipse at 70% 20%, rgba(167,139,250,0.15), transparent 50%),
+    linear-gradient(180deg, #05061a 0%, #0a1028 50%, #1a1f4d 100%);
+}
+
+/* Stars */
+.star { position: absolute; background: white; border-radius: 50%; opacity: 0.8; }
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+.star { animation: twinkle 3s ease-in-out infinite; }
+
+/* ———— Skyline silhouette ———— */
+.skyline {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  width: 100%; height: auto;
+  pointer-events: none;
+  display: block;
+}
+
+/* ———— Buttons ———— */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px;
+  font-family: var(--f-display);
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 14px 24px;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
+  position: relative;
+  user-select: none;
+}
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: linear-gradient(180deg, #ff8a5c 0%, #ff6b3d 100%);
+  color: #1a0f08;
+  box-shadow:
+    0 0 0 1px rgba(255,179,122,0.4) inset,
+    0 1px 0 rgba(255,255,255,0.5) inset,
+    0 10px 30px rgba(255,120,73,0.35),
+    0 2px 6px rgba(0,0,0,0.2);
+}
+.btn-primary:hover { box-shadow: 0 0 0 1px rgba(255,179,122,0.6) inset, 0 1px 0 rgba(255,255,255,0.5) inset, 0 14px 40px rgba(255,120,73,0.5), 0 2px 6px rgba(0,0,0,0.2); }
+
+.btn-ghost {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.14); }
+
+.btn-teal {
+  background: linear-gradient(180deg, #5eead4 0%, #2dd4bf 100%);
+  color: #042f2e;
+  box-shadow: 0 0 0 1px rgba(94,234,212,0.4) inset, 0 10px 30px rgba(45,212,191,0.3);
+}
+
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-size: 12px; font-weight: 500;
+  color: var(--muted);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+}
+.chip-ember { color: #ffd6bf; background: rgba(255,120,73,0.18); box-shadow: inset 0 0 0 1px rgba(255,120,73,0.35); }
+.chip-teal { color: #a7f3d7; background: rgba(94,234,212,0.14); box-shadow: inset 0 0 0 1px rgba(94,234,212,0.3); }
+
+/* ———— Glass cards ———— */
+.glass {
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+  border-radius: var(--r-lg);
+}
+.glass-dark {
+  background: rgba(8,10,24,0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+  border-radius: var(--r-lg);
+}
+
+/* ———— Scene transitions ———— */
+.scene-enter {
+  animation: sceneIn .45s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes sceneIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.995); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Glow pulse */
+@keyframes glowPulse {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(255,120,73,0.6)); }
+  50% { filter: drop-shadow(0 0 16px rgba(255,120,73,0.9)); }
+}
+
+/* ———— Orb mascot ———— */
+.orb {
+  position: relative;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffd6bf 0%, #ff9a7a 30%, #ff6b3d 60%, #7a2a1a 100%);
+  box-shadow:
+    0 0 30px rgba(255,120,73,0.7),
+    0 0 60px rgba(255,120,73,0.4),
+    inset -4px -4px 12px rgba(122,42,26,0.6),
+    inset 2px 2px 4px rgba(255,255,255,0.4);
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+/* ———— Tab bar ———— */
+.tabbar {
+  position: absolute; bottom: 22px; left: 16px; right: 16px;
+  height: 64px; z-index: 40;
+  border-radius: 32px;
+  display: flex; align-items: center; justify-content: space-around;
+  padding: 0 8px;
+  background: rgba(10,12,30,0.72);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08), 0 20px 50px rgba(0,0,0,0.4);
+}
+.tabbar button {
+  flex: 1; height: 52px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px;
+  color: var(--muted-2);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  transition: color .2s;
+  border-radius: 26px;
+}
+.tabbar button.active { color: #fff; }
+.tabbar button.active::before {
+  content: '';
+  position: absolute; top: 6px; width: 4px; height: 4px; border-radius: 50%;
+  background: var(--ember);
+  box-shadow: 0 0 8px var(--ember);
+}
+
+/* ———— HUD ———— */
+.hud-top {
+  position: absolute; top: 60px; left: 16px; right: 16px; z-index: 30;
+  display: flex; justify-content: space-between; gap: 10px;
+}
+.hud-bottom {
+  position: absolute; bottom: 48px; left: 16px; right: 16px; z-index: 30;
+}
+
+/* ———— Meter / bar ———— */
+.meter {
+  height: 8px; border-radius: 4px;
+  background: rgba(255,255,255,0.1);
+  overflow: hidden;
+}
+.meter > .fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--teal), var(--teal-dim));
+  transition: width .5s cubic-bezier(.2,.8,.2,1);
+}
+.meter.ember > .fill { background: linear-gradient(90deg, var(--ember-glow), var(--ember)); }
+
+/* ———— Heading scales ———— */
+.h-display { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; }
+.h-title { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.15; }
+.h-section { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-2); }
+.body { font-size: 15px; line-height: 1.45; color: var(--muted); }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+/* ———— Range slider (for angle dial) ———— */
+.dial {
+  -webkit-appearance: none; appearance: none;
+  background: transparent; width: 100%;
+}
+.dial::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0.4));
+}
+.dial::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 28px; height: 28px;
+  border-radius: 50%; margin-top: -12px;
+  background: linear-gradient(180deg, #ff8a5c, #ff6b3d);
+  box-shadow: 0 0 0 3px rgba(255,120,73,0.25), 0 4px 12px rgba(255,120,73,0.5);
+  border: 2px solid #fff;
+}
+
+/* scrollable lists inside phone */
+.scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.scroll::-webkit-scrollbar { display: none; }
+
+/* utility */
+.row { display: flex; align-items: center; }
+.col { display: flex; flex-direction: column; }
+.gap-1 { gap: 4px } .gap-2 { gap: 8px } .gap-3 { gap: 12px } .gap-4 { gap: 16px } .gap-6 { gap: 24px }
+.p-4 { padding: 16px } .p-5 { padding: 20px } .p-6 { padding: 24px }
+.flex-1 { flex: 1 }
+.center { align-items: center; justify-content: center; }
+.between { justify-content: space-between; }
+
+/* Tweaks panel */
+.tweaks-fab {
+  position: fixed; right: 20px; top: 20px; z-index: 500;
+  width: 48px; height: 48px; border-radius: 24px;
+  background: rgba(20,20,30,0.85);
+  backdrop-filter: blur(20px);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.1);
+  font-size: 18px;
+}
+.tweaks-panel {
+  position: fixed; top: 80px; right: 20px; z-index: 499;
+  width: 320px; max-height: 70vh; overflow-y: auto;
+  background: rgba(20,20,30,0.92);
+  backdrop-filter: blur(24px);
+  border-radius: 20px;
+  padding: 18px;
+  color: #fff;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.08);
+  font-size: 13px;
+}
+.tweaks-panel h4 { margin: 0 0 4px; font-size: 14px; font-weight: 600; }
+.tweaks-panel .group { margin-bottom: 14px; }
+.tweaks-panel label { display: block; font-size: 11px; color: var(--muted-2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
+.tweaks-panel .opts { display: flex; gap: 6px; flex-wrap: wrap; }
+.tweaks-panel .opts button { padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,0.06); font-size: 12px; color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
+.tweaks-panel .opts button.on { background: rgba(255,120,73,0.3); box-shadow: inset 0 0 0 1px rgba(255,120,73,0.6); color: #fff; }
