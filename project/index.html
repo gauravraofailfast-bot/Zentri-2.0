@@ -17,6 +17,9 @@
 <script type="text/babel" src="scenes-a.jsx"></script>
 <script type="text/babel" src="scenes-b.jsx"></script>
 <script type="text/babel" src="scenes-c.jsx"></script>
+<script type="text/babel" src="scenes-d.jsx"></script>
+<script type="text/babel" src="scenes-e.jsx"></script>
+<script type="text/babel" src="scenes-f.jsx"></script>
 
 <script type="text/babel">
 const { useState, useEffect } = React;
@@ -27,20 +30,158 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "tone": "hype"
 }/*EDITMODE-END*/;
 
+// Mission intro content keyed by mission kind
+const MISSION_STORIES = {
+  anatomy: {
+    num: '01', title: 'Triangle Anatomy',
+    story: 'Every right triangle has three sides — but their names change depending on where you stand. Tap the side the game asks for as you rotate the angle.',
+    learns: [
+      'Name opposite, adjacent, hypotenuse relative to θ',
+      'See how sides change role when the angle moves',
+      'Build the muscle memory before ratios arrive',
+    ],
+  },
+  'archer-intro': {
+    num: '02', title: 'Ratio Workshop',
+    story: 'Meet sin, cos, and tan for the first time — as ratios of sides. Draw the bow, watch the numbers update live.',
+    learns: [
+      'sin θ = opposite / hypotenuse',
+      'cos θ = adjacent / hypotenuse',
+      'tan θ = opposite / adjacent',
+    ],
+  },
+  archer: {
+    num: '03', title: "Archer's Angle",
+    story: "The Dusk Minar holds an old banner. Your bow draws a hypotenuse across the sky. Master sin, cos, tan — hit the banner without ever measuring the rope.",
+    learns: [
+      'Name the three sides of a right triangle from any angle',
+      'Feel sin θ, cos θ, tan θ as the triangle changes',
+      'Special angles: 30°, 45°, 60°',
+    ],
+  },
+  angles: {
+    num: '04', title: 'Angles Arena',
+    story: '30°, 45°, 60° — the magic angles of trigonometry. Each unlocks a perfect ratio. Choose the right angle for the equation on screen.',
+    learns: [
+      'Memorise sin/cos/tan for 30°, 45°, 60°, 0° and 90°',
+      'See the ramp shapes these angles make',
+      'Use exact values instantly in any problem',
+    ],
+  },
+  decoder: {
+    num: '05', title: 'Ratio Decoder',
+    story: "You're given one ratio — say tan A = 4/3. Using Pythagoras, find all the others. Unlock the triangle's full profile from a single clue.",
+    learns: [
+      'Use Pythagoras to find the missing side',
+      'Derive all six ratios from one given ratio',
+      'Solve multi-step trig problems with confidence',
+    ],
+  },
+  identity: {
+    num: '06', title: 'Identity Forge',
+    story: 'On the unit circle, sin²θ + cos²θ is always 1 — no matter what θ is. Spin the angle, watch the identity hold. Then build the other two.',
+    learns: [
+      'sin²θ + cos²θ = 1 — visualised on the unit circle',
+      '1 + tan²θ = sec²θ and 1 + cot²θ = cosec²θ',
+      'Identities are permanent — not just memorised',
+    ],
+  },
+  proof: {
+    num: '07', title: 'Proof Duel',
+    story: "Rearrange the tiles in order to prove the identity. No guessing — each step must follow from the last. This is how a mathematician thinks.",
+    learns: [
+      'Arrange algebraic steps in correct logical order',
+      'Prove trig identities step-by-step',
+      'Spot the difference between valid and invalid steps',
+    ],
+  },
+  'boss-trig': {
+    num: 'BOSS', title: 'The Dusk Minar',
+    story: 'The Minar stands at dusk. Four questions — ratios, identities, angles. Answer them all and the constellation is complete.',
+    learns: [
+      'Synthesise every Ch 8 concept in one challenge',
+      'Any ratio, any angle, any triangle',
+      'Exit a master of trigonometry',
+    ],
+  },
+  sight: {
+    num: '01', title: 'Line of Sight',
+    story: 'Before you can measure heights and distances, you need to see angles clearly. Tilt your gaze up and down — feel the difference between elevation and depression.',
+    learns: [
+      'Angle of elevation — looking up from horizontal',
+      'Angle of depression — looking down from horizontal',
+      'Why the two angles are equal (alternate interior angles)',
+    ],
+  },
+  light: {
+    num: '02', title: 'Lighthouse',
+    story: "Dusk fell. A ship is adrift somewhere on the horizon. You're in the lighthouse. The only measurement you have is how far you lower your eyes to see it.",
+    learns: [
+      'Angle of depression — what it means and how to sight one',
+      'How tan θ turns an angle into a distance',
+      'Solving D = H / tan θ from a real scene',
+    ],
+  },
+  lighthouse: {
+    num: '02', title: 'Lighthouse',
+    story: "Dusk fell. A ship is adrift somewhere on the horizon. You're in the lighthouse. The only measurement you have is how far you lower your eyes to see it.",
+    learns: [
+      'Angle of depression — what it means and how to sight one',
+      'How tan θ turns an angle into a distance',
+      'Solving D = H / tan θ from a real scene',
+    ],
+  },
+  flag: {
+    num: '03', title: 'Flagstaff on the Tower',
+    story: 'A 10 m building flies a flag. From the ground you know two angles of elevation — one to the building top, one to the flag top. Use both triangles to find the flag length.',
+    learns: [
+      'Set up two right triangles from one observation point',
+      'Use tan at two different angles to find an unknown length',
+      'Classic two-angle problem from NCERT Example 4',
+    ],
+  },
+  shadow: {
+    num: '04', title: "Sun's Shadow",
+    story: "As the sun falls, shadows grow. At two different sun angles the shadow is 4 m longer. From that one difference, find the tower's full height.",
+    learns: [
+      'Write shadow-length equations at two sun angles',
+      'Subtract to eliminate the unknown base distance',
+      'Solve with 2√3 — NCERT Example 5',
+    ],
+  },
+  twin: {
+    num: '05', title: 'Twin Towers',
+    story: "From the top of a 60 m tower, you look down at the building next to you. Two depression angles — one to the top, one to the bottom. Find its height.",
+    learns: [
+      'Angles of depression from a high point to a shorter building',
+      'Find horizontal distance first using tan 60°',
+      'Then compute the building height using tan 30°',
+    ],
+  },
+  river: {
+    num: 'BOSS', title: 'The River',
+    story: "You stand on a 3 m bridge over a river. Lock two depression beams — one to each bank. From just those angles and your height, compute the full river width.",
+    learns: [
+      'Two-angle depression problem from one position',
+      'Use tan to find each bank distance independently',
+      'Add them — you just measured a river without crossing it',
+    ],
+  },
+};
+
 function App() {
   const [scene, setScene] = useState(() => localStorage.getItem('z.scene') || 'onboarding');
   const [player, setPlayer] = useState(() => JSON.parse(localStorage.getItem('z.player') || 'null') || { name: 'Aarav', intent: 'concept' });
-  const [progress, setProgress] = useState({ confidence: 62 });
+  const [progress, setProgress] = useState({ confidence: 62, ch8: 2, ch9: 0 });
   const [activeMission, setActiveMission] = useState(null);
+  const [activeChapter, setActiveChapter] = useState('ch8');
   const [showFeedback, setShowFeedback] = useState(false);
   const [tweaks, setTweaks] = useState(TWEAK_DEFAULTS);
-  const [tweaksOpen, setTweaksOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => { localStorage.setItem('z.scene', scene); }, [scene]);
   useEffect(() => { localStorage.setItem('z.player', JSON.stringify(player)); }, [player]);
 
-  // Tweaks protocol
   useEffect(() => {
     const onMsg = (e) => {
       if (e.data?.type === '__activate_edit_mode') setEditMode(true);
@@ -58,66 +199,143 @@ function App() {
   };
 
   const handleNav = (id) => {
-    const map = { home: 'lobby', world: 'world', raid: 'raid', progress: 'progress' };
+    const map = { home: 'lobby', world: 'worlds', raid: 'raid', progress: 'progress' };
     setScene(map[id] || id);
+  };
+
+  // Map mission kind → play scene, respecting the gameplay tweak for archer/lighthouse swap
+  const getPlayScene = (kind) => {
+    if (tweaks.gameplay === 'lighthouse' && (kind === 'archer' || kind === 'archer-intro')) return 'play-lighthouse';
+    if (tweaks.gameplay === 'archer' && (kind === 'light' || kind === 'lighthouse')) return 'play-archer';
+    const map = {
+      anatomy: 'play-anatomy',
+      'archer-intro': 'play-archer',
+      archer: 'play-archer',
+      angles: 'play-angles',
+      decoder: 'play-decoder',
+      identity: 'play-identity',
+      proof: 'play-proof',
+      'boss-trig': 'play-trig-boss',
+      sight: 'play-sight',
+      light: 'play-lighthouse',
+      lighthouse: 'play-lighthouse',
+      flag: 'play-flagstaff',
+      shadow: 'play-shadow',
+      twin: 'play-twin',
+      river: 'play-river-boss',
+    };
+    return map[kind] || 'play-archer';
   };
 
   const startMission = (m) => {
     setActiveMission(m);
-    const kind = tweaks.gameplay === 'lighthouse' ? 'lighthouse' : (m.kind || 'archer');
-    setScene(kind === 'light' || kind === 'lighthouse' ? 'play-lighthouse' : 'play-archer');
+    setScene(getPlayScene(m.kind || 'archer'));
   };
 
   const finishMission = () => {
-    setProgress(p => ({ ...p, confidence: Math.min(100, p.confidence + 4) }));
+    setProgress(p => ({
+      ...p,
+      confidence: Math.min(100, p.confidence + 4),
+      [activeChapter]: Math.min(activeChapter === 'ch9' ? 6 : 8, (p[activeChapter] || 0) + 1),
+    }));
     setShowFeedback(true);
-    setScene('world');
+    setScene(activeChapter === 'ch9' ? 'world-ch9' : 'world-ch8');
   };
+
+  const getMissionIntroData = (m) => {
+    const s = MISSION_STORIES[m.kind] || MISSION_STORIES.archer;
+    return { ...s, title: m.title || s.title };
+  };
+
+  const backFromWorldMap = () => setScene('worlds');
 
   return (
     <div className="stage">
       <div className="phone">
         <div className="screen">
+
           {scene === 'onboarding' && (
             <OnboardingScene tweaks={tweaks} onDone={(p) => { setPlayer(p); setScene('lobby'); }}/>
           )}
+
           {scene === 'lobby' && (
             <LobbyScene player={player} progress={progress}
               onNav={handleNav}
-              onEnterWorld={() => setScene('world')}
+              onEnterWorld={() => setScene('worlds')}
               onMultiplayer={() => setScene('raid')}/>
           )}
-          {scene === 'world' && (
-            <WorldScene progress={progress}
+
+          {scene === 'worlds' && (
+            <WorldsScene progress={progress}
               onBack={() => setScene('lobby')}
+              onNav={handleNav}
+              onPickWorld={(wid) => {
+                setActiveChapter(wid);
+                setScene('world-' + wid);
+              }}/>
+          )}
+
+          {(scene === 'world-ch8' || scene === 'world-ch9') && (
+            <WorldMap
+              chapter={scene === 'world-ch9' ? 'ch9' : 'ch8'}
+              onBack={backFromWorldMap}
               onNav={handleNav}
               onEnterMission={(m) => {
                 setActiveMission(m);
                 setScene('mission-intro');
               }}/>
           )}
-          {scene === 'mission-intro' && activeMission && (
-            <MissionIntro mission={{
-              num: '03',
-              title: activeMission.title,
-              story: activeMission.kind === 'light'
-                ? 'Dusk fell. A ship is adrift somewhere on the horizon. You\u2019re in the lighthouse. The only measurement you have is how far you lower your eyes to see it.'
-                : 'The Dusk Minar holds an old banner. Your bow draws a hypotenuse across the sky. Master sin, cos, tan — hit the banner without ever measuring the rope.',
-              learns: activeMission.kind === 'light'
-                ? ['Angle of depression — what it means and how to sight one',
-                   'How tan θ turns an angle into a distance',
-                   'Solving D = H / tan θ from a real scene']
-                : ['Name the three sides of a right triangle from any angle',
-                   'Feel sin θ, cos θ, tan θ as the triangle changes',
-                   'Special angles: 30°, 45°, 60°'],
-            }} onBack={() => setScene('world')} onStart={() => startMission(activeMission)}/>
-          )}
+
+          {scene === 'mission-intro' && activeMission && (() => {
+            const mi = getMissionIntroData(activeMission);
+            return (
+              <MissionIntro
+                mission={mi}
+                onBack={() => setScene(activeChapter === 'ch9' ? 'world-ch9' : 'world-ch8')}
+                onStart={() => startMission(activeMission)}/>
+            );
+          })()}
+
           {scene === 'play-archer' && (
             <ArcherMission tweaks={tweaks} onDone={finishMission}/>
           )}
           {scene === 'play-lighthouse' && (
             <LighthouseMission tweaks={tweaks} onDone={finishMission}/>
           )}
+          {scene === 'play-anatomy' && (
+            <AnatomyMission onDone={finishMission}/>
+          )}
+          {scene === 'play-angles' && (
+            <AnglesMission onDone={finishMission}/>
+          )}
+          {scene === 'play-decoder' && (
+            <DecoderMission onDone={finishMission}/>
+          )}
+          {scene === 'play-identity' && (
+            <IdentityMission onDone={finishMission}/>
+          )}
+          {scene === 'play-proof' && (
+            <ProofMission onDone={finishMission}/>
+          )}
+          {scene === 'play-trig-boss' && (
+            <TrigBossMission onDone={finishMission}/>
+          )}
+          {scene === 'play-sight' && (
+            <SightMission onDone={finishMission}/>
+          )}
+          {scene === 'play-flagstaff' && (
+            <FlagstaffMission onDone={finishMission}/>
+          )}
+          {scene === 'play-shadow' && (
+            <ShadowMission onDone={finishMission}/>
+          )}
+          {scene === 'play-twin' && (
+            <TwinMission onDone={finishMission}/>
+          )}
+          {scene === 'play-river-boss' && (
+            <RiverBossMission onDone={finishMission}/>
+          )}
+
           {scene === 'raid' && (
             <RaidScene onBack={() => setScene('lobby')} onNav={handleNav}/>
           )}
@@ -176,9 +394,20 @@ function App() {
           <div className="group">
             <label>Jump to</label>
             <div className="opts">
-              {['onboarding','lobby','world','mission-intro','play-archer','play-lighthouse','raid','progress'].map(s => (
+              {[
+                'onboarding','lobby','worlds','world-ch8','world-ch9','mission-intro',
+                'play-archer','play-lighthouse','play-anatomy','play-angles','play-decoder',
+                'play-identity','play-proof','play-trig-boss',
+                'play-sight','play-flagstaff','play-shadow','play-twin','play-river-boss',
+                'raid','progress',
+              ].map(s => (
                 <button key={s} className={scene === s ? 'on' : ''} onClick={() => {
-                  if (s === 'mission-intro') setActiveMission({ title: 'Archer\u2019s Angle', kind: 'archer' });
+                  if (s === 'mission-intro') {
+                    setActiveMission({ title: "Archer's Angle", kind: 'archer' });
+                    setActiveChapter('ch8');
+                  }
+                  if (s === 'world-ch8') setActiveChapter('ch8');
+                  if (s === 'world-ch9') setActiveChapter('ch9');
                   setScene(s);
                 }}>{s}</button>
               ))}
