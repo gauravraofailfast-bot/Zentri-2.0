@@ -142,6 +142,21 @@ created_at (timestamptz)
 PK (user_id, curriculum_id)
 ```
 
+**questions** (PYQs migrated from Firestore)
+```sql
+id (text, PK)  -- 'ch8-q1'
+curriculum_id (text)  -- 'class10-math'
+chapter_id (text)  -- 'ch8'
+concept_id (text, FK optional)  -- Links to concept if applicable
+question_text (text)
+options (jsonb)  -- [{text: "...", isCorrect: true}, ...]
+answer_explanation (text)
+difficulty (text)  -- 'easy', 'medium', 'hard'
+source (text)  -- 'ncert', 'pmt', 'jee', 'pyq'
+year (int)  -- 2023, 2022, etc.
+created_at (timestamptz)
+```
+
 **leaderboard_weekly** (materialized view, populated by cron)
 ```
 Aggregates from progress table hourly
