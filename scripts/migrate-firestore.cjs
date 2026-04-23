@@ -49,8 +49,9 @@ async function migrate() {
   console.log('\n🚀 Starting Firestore → Supabase migration...\n');
 
   try {
-    const conceptsToInsert = [];
-    const questionsToInsert = [];
+    // Use Maps to deduplicate by ID (same topic can appear in both math_basic + math_standard)
+    const conceptsMap = new Map();
+    const questionsMap = new Map();
 
     let chapterCount = 0;
     let conceptCount = 0;
@@ -101,8 +102,10 @@ async function migrate() {
             common_misconceptions: topicData.common_misconceptions || null,
           };
 
-          conceptsToInsert.push(concept);
-          conceptCount++;
+          if (!conceptsMap.has(concept.id)) {
+            conceptsMap.set(concept.id, concept);
+            conceptCount++;
+          }
         }
       } catch (err) {
         console.warn(`     ⚠️  Topics error: ${err.message}`);
@@ -132,8 +135,10 @@ async function migrate() {
             year: questionData.year || null,
           };
 
-          questionsToInsert.push(question);
-          pyqCount++;
+          if (!questionsMap.has(question.id)) {
+            questionsMap.set(question.id, question);
+            pyqCount++;
+          }
         }
       } catch (err) {
         console.warn(`     ⚠️  Questions error: ${err.message}`);
@@ -141,7 +146,10 @@ async function migrate() {
       }
     }
 
-    console.log(`\n✅ Extracted:`);
+    const conceptsToInsert = Array.from(conceptsMap.values());
+    const questionsToInsert = Array.from(questionsMap.values());
+
+    console.log(`\n✅ Extracted (deduplicated):`);
     console.log(`   • Chapters: ${chapterCount}`);
     console.log(`   • Concepts: ${conceptCount}`);
     console.log(`   • PYQs: ${pyqCount}\n`);
@@ -150,29 +158,35 @@ async function migrate() {
     console.log('💾 Inserting into Supabase...\n');
 
     if (conceptsToInsert.length > 0) {
-      console.log(`   Inserting ${conceptsToInsert.length} concepts...`);
-      const { error: conceptError } = await supabase
-        .from('concepts')
-        .insert(conceptsToInsert);
-
-      if (conceptError) {
-        console.error(`   ❌ Error: ${conceptError.message}`);
-        throw conceptError;
+      console.log(`   Upserting ${conceptsToInsert.length} concepts...`);
+      // Batch in chunks of 100 to avoid payload limits
+      for (let i = 0; i < conceptsToInsert.length; i += 100) {
+        const chunk = conceptsToInsert.slice(i, i + 100);
+        const { error: conceptError } = await supabase
+          .from('concepts')
+          .upsert(chunk, { onConflict: 'id' });
+        if (conceptError) {
+          console.error(`   ❌ Error at chunk ${i}: ${conceptError.message}`);
+          throw conceptError;
+        }
       }
-      console.log(`   ✅ Concepts inserted`);
+      console.log(`   ✅ Concepts upserted`);
     }
 
     if (questionsToInsert.length > 0) {
-      console.log(`   Inserting ${questionsToInsert.length} questions...`);
-      const { error: questionError } = await supabase
-        .from('questions')
-        .insert(questionsToInsert);
-
-      if (questionError) {
-        console.error(`   ❌ Error: ${questionError.message}`);
-        throw questionError;
+      console.log(`   Upserting ${questionsToInsert.length} questions...`);
+      // Batch in chunks of 100 to avoid payload limits
+      for (let i = 0; i < questionsToInsert.length; i += 100) {
+        const chunk = questionsToInsert.slice(i, i + 100);
+        const { error: questionError } = await supabase
+          .from('questions')
+          .upsert(chunk, { onConflict: 'id' });
+        if (questionError) {
+          console.error(`   ❌ Error at chunk ${i}: ${questionError.message}`);
+          throw questionError;
+        }
       }
-      console.log(`   ✅ Questions inserted`);
+      console.log(`   ✅ Questions upserted`);
     }
 
     console.log(`\n🎉 Migration complete!`);
