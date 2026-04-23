@@ -1,52 +1,56 @@
+/// <reference types="vite/client" />
 import { openDB, DBSchema, IDBPDatabase } from 'idb'
+
+interface ProgressRecord {
+  key: string // composite: `${userId}:${conceptId}`
+  userId: string
+  conceptId: string
+  curriculumId: string
+  masteryLevel: number
+  attempts: number
+  correct: number
+  lastPracticed: string
+  updatedAt: string
+  synced?: boolean
+}
+
+interface SyncQueueRecord {
+  createdAt: string
+  action: 'upsert' | 'delete'
+  table: string
+  data: Record<string, unknown>
+}
 
 interface ZentriDB extends DBSchema {
   progress: {
     key: string
-    value: {
-      userId: string
-      conceptId: string
-      curriculumId: string
-      masteryLevel: number
-      attempts: number
-      correct: number
-      lastPracticed: string
-      updatedAt: string
-      synced?: boolean
-    }
+    value: ProgressRecord
+    indexes: { byUser: string; byUpdatedAt: string }
   }
   syncQueue: {
     key: string
-    value: {
-      action: 'upsert' | 'delete'
-      table: string
-      data: any
-      createdAt: string
-    }
+    value: SyncQueueRecord
   }
 }
 
-let db: IDBPDatabase<ZentriDB> | null = null
+let dbPromise: Promise<IDBPDatabase<ZentriDB>> | null = null
 
-async function getDB() {
-  if (!db) {
-    db = await openDB<ZentriDB>('zentri', 1, {
-      upgrade(db) {
-        // Progress store
-        if (!db.objectStoreNames.contains('progress')) {
-          const progressStore = db.createObjectStore('progress', { keyPath: 'userId' })
-          progressStore.createIndex('conceptId', 'conceptId')
-          progressStore.createIndex('updatedAt', 'updatedAt')
+function getDB() {
+  if (!dbPromise) {
+    dbPromise = openDB<ZentriDB>('zentri', 1, {
+      upgrade(database) {
+        if (!database.objectStoreNames.contains('progress')) {
+          const store = database.createObjectStore('progress', { keyPath: 'key' })
+          store.createIndex('byUser', 'userId')
+          store.createIndex('byUpdatedAt', 'updatedAt')
         }
-
-        // Sync queue
-        if (!db.objectStoreNames.contains('syncQueue')) {
-          db.createObjectStore('syncQueue', { keyPath: 'createdAt' })
+        if (!database.objectStoreNames.contains('syncQueue')) {
+          database.createObjectStore('syncQueue', { keyPath: 'createdAt' })
         }
       },
     })
   }
-  return db
+  return dbPromise
 }
 
 export async function saveProgress(
@@ -58,9 +62,10 @@ export async function saveProgress(
   attempts: number
 ) {
   const db = await getDB()
-  const key = `${userId}:${conceptId}`
+  const compositeKey = `${userId}:${conceptId}`
 
-  await db.put('progress', {
+  const record: ProgressRecord = {
+    key: compositeKey,
     userId,
     conceptId,
     curriculumId,
@@ -70,29 +75,28 @@ export async function saveProgress(
     lastPracticed: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     synced: false,
-  })
+  }
 
-  // Add to sync queue
-  await db.add('syncQueue', {
+  await db.put('progress', record)
+
+  const queueRecord: SyncQueueRecord = {
     action: 'upsert',
     table: 'progress',
     data: { userId, conceptId, masteryLevel, attempts, correct },
-    createdAt: new Date().toISOString(),
-  })
+    createdAt: new Date().toISOString() + Math.random(),
+  }
+  await db.add('syncQueue', queueRecord)
 }
 
 export async function getProgress(userId: string, conceptId: string) {
   const db = await getDB()
-  const allProgress = await db.getAll('progress')
-  return allProgress.find(
-    (p) => p.userId === userId && p.conceptId === conceptId
-  )
+  return db.get('progress', `${userId}:${conceptId}`)
 }
 
 export async function getAllProgress(userId: string) {
   const db = await getDB()
-  const allProgress = await db.getAll('progress')
-  return allProgress.filter((p) => p.userId === userId)
+  const index = db.transaction('progress').store.index('byUser')
+  return index.getAll(userId)
 }
 
 export async function getSyncQueue() {

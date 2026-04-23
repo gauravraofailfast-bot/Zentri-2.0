@@ -1,29 +1,47 @@
-// Curriculum & Manifest types
+// ============================================================================
+// Curriculum & Manifest types (mirrors manifest.yaml)
+// ============================================================================
+
 export interface CurriculumManifest {
   curriculum: string
+  language: string
+  title: string
+  description: string
   biomes: Biome[]
   spaced_repetition?: {
-    concept_intervals?: number[]
+    concept_intervals_days?: number[]
+    mastery_threshold?: number
+    next_due_calc?: string
   }
+  free_chapter?: string
+  tiers?: Record<string, unknown>
+  audio?: Record<string, unknown>
+  references?: Record<string, string>
 }
 
 export interface Biome {
   id: string
+  title: string
+  location: string
   theme: string
-  companions_unlocked?: string[]
+  chapter: string
+  companion: string
+  description: string
   landmarks: Landmark[]
 }
 
 export interface Landmark {
   id: string
-  concept: string
+  name: string
+  concept_id: string
   mechanic: string
-  mechanic_config: Record<string, any>
-  ncert_reference: string
-  mastery_threshold?: number
+  mechanic_config: Record<string, unknown>
 }
 
-// Database types
+// ============================================================================
+// Database row types (Supabase tables)
+// ============================================================================
+
 export interface Concept {
   id: string
   curriculum_id: string
@@ -32,10 +50,10 @@ export interface Concept {
   topic_id?: string
   name: string
   description?: string
-  source_reference: string
+  source_reference?: string
   prerequisites?: string[]
-  mastery_criteria?: Record<string, any>
-  common_misconceptions?: Record<string, any>
+  mastery_criteria?: Record<string, unknown>
+  common_misconceptions?: Record<string, unknown>
   created_at?: string
   updated_at?: string
 }
@@ -63,7 +81,7 @@ export interface LandmarkDB {
   biome_id: string
   concept_id?: string
   mechanic_type: string
-  mechanic_config: Record<string, any>
+  mechanic_config: Record<string, unknown>
   vibe_notes?: string
   sort_order?: number
   created_at?: string
@@ -99,14 +117,25 @@ export interface Entitlement {
   created_at?: string
 }
 
-// Mechanic props (generic)
-export interface MechanicProps {
-  conceptId: string
-  config: Record<string, any>
-  onComplete: (correct: boolean, duration: number) => void
+// ============================================================================
+// Mechanic system
+// ============================================================================
+
+export interface MechanicResult {
+  passed: boolean
+  score?: number
 }
 
+/** Props every mechanic component receives */
+export interface MechanicProps {
+  config: Record<string, unknown>
+  onComplete: (result: MechanicResult) => void
+}
+
+// ============================================================================
 // Mission state
+// ============================================================================
+
 export interface MissionState {
   conceptId: string
   attempts: number
