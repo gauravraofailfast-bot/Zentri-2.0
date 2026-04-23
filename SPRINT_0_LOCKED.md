@@ -37,9 +37,11 @@
 - [ ] Auth skeleton (Supabase auth ready, UI deferred to S1)
 
 ### Content Data
-- [ ] Class X Math concepts migrated from Firebase to Supabase
+- [ ] Class X Math concepts migrated from Firestore (cbse_class_10 exam only) to Supabase
+- [ ] Previous Year Questions (PYQs) migrated from Firestore per chapter
 - [ ] `curricula/class10-math/en/manifest.yaml` created, referencing all concepts
 - [ ] 14 landmarks configured in Supabase with mechanic mappings
+- [ ] Questions table seeded with all PYQs (linked to concepts by chapter)
 
 ### Deployment
 - [ ] Vercel deployment working (blank app shell, no journey engine UI)

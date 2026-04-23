@@ -1,0 +1,142 @@
+# Class X Mathematics (NCERT) — Zentri Curriculum Manifest
+# This manifest maps the journey biomes, landmarks, and mechanics to NCERT concepts
+
+curriculum: class10-math
+language: en
+title: "Class X Mathematics — Trigonometry & Applications"
+description: "Learn trigonometry through Kavya's journey across India, from Jaipur's pink city to the Bodhi groves of Nalanda."
+
+biomes:
+  # Biome 1: Dust Road (Jaipur) — Chapter 8 Trigonometry Basics
+  - id: pink-city
+    title: "Pink City Dust"
+    location: "Jaipur"
+    theme: jaipur-rose-dusk
+    chapter: ch8
+    companion: mishti-peacock
+    description: "Golden hour in Jaipur. Learn the foundations of trigonometry through ancient architecture."
+    landmarks:
+      - id: hawa-mahal-anatomy
+        name: "Hawa Mahal Triangle Anatomy"
+        concept_id: class10-math-ch8-triangle-anatomy
+        mechanic: tap-identify
+        mechanic_config:
+          targets:
+            - { side: "opposite", angle: 30 }
+            - { side: "adjacent", angle: 45 }
+            - { side: "hypotenuse", angle: 60 }
+          angle_range: [30, 45, 60, 90]
+      - id: jantar-mantar-ratios
+        name: "Jantar Mantar Ratios"
+        concept_id: class10-math-ch8-ratio-definition
+        mechanic: slider-live-readout
+        mechanic_config:
+          readout_values: [sin, cos, tan]
+          angle_range: [0, 90]
+      - id: archer-angle
+        name: "Archer's Angle"
+        concept_id: class10-math-ch8-standard-angles
+        mechanic: drag-angle-release
+        mechanic_config:
+          targets: 8
+          angles: [30, 45, 60]
+          difficulty_ramp: [easy, easy, medium, medium, hard, hard, hard, synthesis]
+
+  # Biome 2: Coastal Dusk (Goa) — Chapter 9 Early Applications
+  - id: coastal-dusk
+    title: "Coastal Dusk"
+    location: "Goa"
+    theme: goa-teal-sunset
+    chapter: ch9
+    companion: baba-langur
+    description: "Teal seas and seabirds. Measure heights and distances using elevation and depression angles."
+    landmarks:
+      - id: dona-paula-depression
+        name: "Dona Paula Line of Sight"
+        concept_id: class10-math-ch9-elevation-depression
+        mechanic: tap-identify
+        mechanic_config:
+          scenarios: 5
+          angle_types: [elevation, depression]
+
+  # Biome 3: Valley of Lanterns (Pahalgam) — Chapter 9 Mid
+  - id: valley-lanterns
+    title: "Valley of Lanterns"
+    location: "Pahalgam"
+    theme: pahalgam-indigo-peaks
+    chapter: ch9
+    companion: raja-tiger
+    description: "Misty valleys and Chinar trees. Solve problems with multiple angles and landmarks."
+
+  # Biome 4: Golden Water (Amritsar) — Chapter 9 Late
+  - id: golden-water
+    title: "Golden Water"
+    location: "Amritsar"
+    theme: amritsar-gold-marble
+    chapter: ch9
+    companion: nandi-cow
+    description: "Golden reflections and sacred geometry. Master elevation and depression combined."
+
+  # Biome 5: Bodhi Grove (Nalanda) — Chapter Synthesis & Boss
+  - id: bodhi-grove
+    title: "Bodhi Grove"
+    location: "Nalanda"
+    theme: nalanda-sandstone-green
+    chapter: ch9
+    companion: fireflies-ambient
+    description: "Ancient ruins and enlightened learning. The final challenge: synthesize all concepts."
+    landmarks:
+      - id: nalanda-synthesis
+        name: "Nalanda Summit"
+        concept_id: class10-math-ch9-synthesis
+        mechanic: composite-challenge
+        mechanic_config:
+          steps:
+            - { mechanic: two-point-measure, weight: 0.4 }
+            - { mechanic: drag-to-order, weight: 0.3 }
+            - { mechanic: build-diagram, weight: 0.3 }
+
+# Spaced repetition config
+spaced_repetition:
+  concept_intervals_days: [1, 3, 7, 21, 60]
+  mastery_threshold: 4
+  next_due_calc: "exponential_backoff"
+
+# Monetization config (S0: free, all chapters unlocked for testing)
+free_chapter: ch8
+tiers:
+  horizon:
+    name: "First Light"
+    includes: [ch8]
+    price: 0
+  wayfarer:
+    name: "Wayfarer Pass"
+    includes: [ch8, ch9]
+    price_monthly: 199
+    price_annual: 1499
+  caravan:
+    name: "Caravan Pass"
+    includes: [class10-math]
+    price_monthly: 499
+    price_annual: 3999
+  cartographer:
+    name: "Cartographer Pass"
+    includes: ["*"]
+    price_annual: 7999
+
+# Audio & aesthetics
+audio:
+  ambient_bed_per_biome: true
+  raag_style: "Bhairavi"
+  language: hindi_classical
+  composer_notes: "Blend sitar, bansuri, tabla, and tanpura with modern synthesis"
+
+# References
+references:
+  ncert_chapter_8: "Introduction to Trigonometry"
+  ncert_chapter_9: "Some Applications of Trigonometry"
+  textbook_edition: "2024"
+
+# Last updated
+last_updated: "2026-04-23"
+version: "1.0.0"
