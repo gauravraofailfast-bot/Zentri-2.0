@@ -78,65 +78,65 @@ async function migrate() {
 
         console.log(`   Chapter: ${chapterId}`);
 
-      // Get concepts
+      // Get topics (these are concepts)
       try {
-        const conceptsSnap = await chapterDoc.ref.collection('concepts').get();
-        console.log(`     → ${conceptsSnap.size} concepts`);
+        const topicsSnap = await chapterDoc.ref.collection('topics').get();
+        console.log(`     → ${topicsSnap.size} topics`);
 
-        for (const conceptDoc of conceptsSnap.docs) {
-          const conceptId = conceptDoc.id;
-          const conceptData = conceptDoc.data();
+        for (const topicDoc of topicsSnap.docs) {
+          const topicId = topicDoc.id;
+          const topicData = topicDoc.data();
 
           const concept = {
-            id: `class10-math-${chapterId}-${conceptId}`,
+            id: `class10-math-${chapterId}-${topicId}`,
             curriculum_id: 'class10-math',
             language: 'en',
             chapter_id: chapterId,
-            topic_id: conceptData.topic_id || chapterId,
-            name: conceptData.name || conceptId,
-            description: conceptData.description || null,
-            source_reference: conceptData.source_reference || `ncert-class10-${chapterId}`,
-            prerequisites: conceptData.prerequisites || null,
-            mastery_criteria: conceptData.mastery_criteria || null,
-            common_misconceptions: conceptData.common_misconceptions || null,
+            topic_id: topicId,
+            name: topicData.name || topicId,
+            description: topicData.description || null,
+            source_reference: topicData.source_reference || `ncert-class10-${chapterId}`,
+            prerequisites: topicData.prerequisites || null,
+            mastery_criteria: topicData.mastery_criteria || null,
+            common_misconceptions: topicData.common_misconceptions || null,
           };
 
           conceptsToInsert.push(concept);
           conceptCount++;
         }
       } catch (err) {
-        console.warn(`     ⚠️  Concepts error: ${err.message}`);
+        console.warn(`     ⚠️  Topics error: ${err.message}`);
       }
 
-      // Get PYQs
+      // Get questions (PYQs)
       try {
-        const pyqsSnap = await chapterDoc.ref.collection('pyqs').get();
-        console.log(`     → ${pyqsSnap.size} PYQs`);
+        const questionsSnap = await chapterDoc.ref.collection('questions').get();
+        console.log(`     → ${questionsSnap.size} questions`);
 
-        for (const pyqDoc of pyqsSnap.docs) {
-          const pyqId = pyqDoc.id;
-          const pyqData = pyqDoc.data();
+        for (const questionDoc of questionsSnap.docs) {
+          const questionId = questionDoc.id;
+          const questionData = questionDoc.data();
 
           const question = {
-            id: `class10-math-${chapterId}-${pyqId}`,
+            id: `class10-math-${chapterId}-${questionId}`,
             curriculum_id: 'class10-math',
             chapter_id: chapterId,
             language: 'en',
-            question_text: pyqData.question_text || pyqData.question || '',
-            question_type: pyqData.question_type || 'mcq',
-            options: pyqData.options || null,
-            answer: pyqData.answer || null,
-            answer_explanation: pyqData.answer_explanation || null,
-            difficulty: pyqData.difficulty || 'medium',
-            source: pyqData.source || 'pyq',
-            year: pyqData.year || null,
+            question_text: questionData.question_text || questionData.question || '',
+            question_type: questionData.question_type || 'mcq',
+            options: questionData.options || null,
+            answer: questionData.answer || null,
+            answer_explanation: questionData.answer_explanation || null,
+            difficulty: questionData.difficulty || 'medium',
+            source: questionData.source || 'pyq',
+            year: questionData.year || null,
           };
 
           questionsToInsert.push(question);
           pyqCount++;
         }
       } catch (err) {
-        console.warn(`     ⚠️  PYQs error: ${err.message}`);
+        console.warn(`     ⚠️  Questions error: ${err.message}`);
       }
       }
     }
