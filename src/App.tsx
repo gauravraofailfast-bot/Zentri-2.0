@@ -1,73 +1,73 @@
 import { useState } from 'react'
 import { OnboardingScene } from './scenes/Onboarding'
-import { LobbyScene, type Player, type Progress } from './scenes/Lobby'
-import { WorldScene } from './scenes/World'
-import { ProgressScene } from './scenes/Progress'
+import { JourneyScene } from './scenes/Journey'
+import { CampOverlay } from './scenes/CampOverlay'
+import { SkyOverlay } from './scenes/SkyOverlay'
 
-type Scene = 'onboarding' | 'lobby' | 'world' | 'progress' | 'raid'
+type Scene = 'onboarding' | 'journey'
+type Overlay = 'none' | 'camp' | 'sky'
 
-const DEFAULT_PROGRESS: Progress = {
-  confidence: 62,
-  streak: 7,
-  mission: 3,
-  totalMissions: 7,
-}
+const DEFAULT_CONFIDENCE = 62
+const DEFAULT_STREAK = 7
 
 export default function App() {
   const [scene, setScene] = useState<Scene>('onboarding')
-  const [player, setPlayer] = useState<Player>({ name: 'Gaurav', intent: 'concept' })
-  const [progress] = useState<Progress>(DEFAULT_PROGRESS)
+  const [overlay, setOverlay] = useState<Overlay>('none')
+  const [playerName, setPlayerName] = useState('Explorer')
+  const [confidence] = useState(DEFAULT_CONFIDENCE)
+  const [streak] = useState(DEFAULT_STREAK)
+  const [completedConceptIds, setCompletedConceptIds] = useState<string[]>([])
+  const [completedLandmarkCount, setCompletedLandmarkCount] = useState(0)
 
-  function handleNav(id: 'home' | 'world' | 'raid' | 'progress') {
-    const map: Record<string, Scene> = { home: 'lobby', world: 'world', raid: 'raid', progress: 'progress' }
-    setScene(map[id] as Scene)
+  function handleOnboardingDone({ name }: { name: string; intent: string }) {
+    setPlayerName(name)
+    setScene('journey')
+  }
+
+  // Journey passes completedIds up when a mechanic finishes
+  // We track them here for Camp/Sky overlays
+  function handleLandmarkComplete(conceptId: string) {
+    setCompletedConceptIds(prev =>
+      prev.includes(conceptId) ? prev : [...prev, conceptId]
+    )
+    setCompletedLandmarkCount(n => n + 1)
   }
 
   return (
     <>
       {scene === 'onboarding' && (
-        <OnboardingScene
-          onDone={({ name, intent }) => {
-            setPlayer({ name, intent })
-            setScene('lobby')
-          }}
-        />
+        <OnboardingScene onDone={handleOnboardingDone}/>
       )}
 
-      {scene === 'lobby' && (
-        <LobbyScene
-          player={player}
-          progress={progress}
-          onNav={handleNav}
-          onEnterWorld={() => setScene('world')}
-          onMultiplayer={() => setScene('raid')}
-        />
-      )}
+      {scene === 'journey' && (
+        <div className="screen" style={{ position: 'relative' }}>
+          <JourneyScene
+            playerName={playerName}
+            onCamp={() => setOverlay('camp')}
+            onSky={() => setOverlay('sky')}
+            onLandmarkComplete={handleLandmarkComplete}
+          />
 
-      {scene === 'world' && (
-        <WorldScene
-          onBack={() => setScene('lobby')}
-          onNav={handleNav}
-        />
-      )}
+          {overlay === 'camp' && (
+            <CampOverlay
+              playerName={playerName}
+              confidence={confidence}
+              streak={streak}
+              completedCount={completedLandmarkCount}
+              totalCount={5}
+              onResume={() => setOverlay('none')}
+            />
+          )}
 
-      {scene === 'progress' && (
-        <ProgressScene
-          onBack={() => setScene('lobby')}
-          onNav={handleNav}
-          confidence={progress.confidence}
-          streak={progress.streak}
-        />
-      )}
-
-      {scene === 'raid' && (
-        <LobbyScene
-          player={player}
-          progress={progress}
-          onNav={handleNav}
-          onEnterWorld={() => setScene('world')}
-          onMultiplayer={() => setScene('lobby')}
-        />
+          {overlay === 'sky' && (
+            <SkyOverlay
+              confidence={confidence}
+              streak={streak}
+              completedConceptIds={completedConceptIds}
+              onClose={() => setOverlay('none')}
+            />
+          )}
+        </div>
       )}
     </>
   )

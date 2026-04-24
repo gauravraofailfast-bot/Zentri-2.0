@@ -79,6 +79,45 @@ body {
   }
 }
 
+/* ─── Desktop portrait frame (≥900px wide) ───────────── */
+@media (min-width: 900px) {
+  html, body, #root {
+    overflow: hidden;
+  }
+
+  /* Ambient dusk canvas fills the desktop gutter */
+  #root {
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 80%, rgba(255,120,73,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 80% 20%, rgba(167,139,250,0.08) 0%, transparent 55%),
+      linear-gradient(180deg, #05070f 0%, #0a1028 60%, #131a38 100%);
+  }
+
+  .screen {
+    /* Portrait window in the ambient canvas */
+    width: 402px;
+    height: min(874px, calc(100vh - 40px));
+    border-radius: 40px;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.07),
+      0 0 0 10px rgba(10,10,20,0.6),
+      0 0 0 11px rgba(255,255,255,0.04),
+      0 50px 100px rgba(0,0,0,0.7),
+      0 0 80px rgba(255,120,73,0.08);
+  }
+}
+
+/* ─── Journey scroll container ───────────────────────── */
+.journey-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+.journey-scroll::-webkit-scrollbar { display: none; }
+.journey-scroll { scrollbar-width: none; }
+
 .sky-dusk {
   background:
     radial-gradient(ellipse 120% 80% at 50% 100%, rgba(255,120,73,0.45) 0%, rgba(138,58,94,0.4) 25%, transparent 55%),
