@@ -7,33 +7,42 @@ export default {
   theme: {
     extend: {
       colors: {
-        dusk: {
-          50: '#f5f3f0',
-          100: '#e8e2db',
-          200: '#d4bfb0',
-          300: '#b89a85',
-          400: '#a07d6a',
-          500: '#8b6e60',
-          600: '#6b5548',
-          700: '#5a4639',
-          800: '#3d2f28',
-          900: '#2a1f1a',
+        // Sky/dusk palette matching Claude Design prototype
+        sky: {
+          top: '#0a1028',
+          mid: '#1a1f4d',
+          low: '#3b2a62',
+          horizon: '#8a3a5e',
+        },
+        ink: {
+          DEFAULT: '#0a0f24',
+          2: '#131a38',
         },
         ember: {
-          50: '#fef5f2',
-          100: '#fce8e0',
-          500: '#ff7849',
-          600: '#e85d30',
-          700: '#d14e1e',
+          DEFAULT: '#ff7849',
+          glow: '#ffb37a',
+          sun: '#ffd166',
         },
         teal: {
-          500: '#5eead4',
-          600: '#14b8a6',
+          DEFAULT: '#5eead4',
+          dim: '#2dd4bf',
         },
+        violet: '#a78bfa',
+        gold: '#fbbf24',
+        pink: '#f472b6',
+        paper: '#f6efe3',
       },
       fontFamily: {
         sans: ['Space Grotesk', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
+      },
+      borderRadius: {
+        sm: '10px',
+        md: '16px',
+        lg: '24px',
+        xl: '32px',
+        '2xl': '40px',
+        pill: '999px',
       },
       backdropBlur: {
         xs: '2px',

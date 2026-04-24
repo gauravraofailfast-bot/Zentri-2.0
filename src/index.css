@@ -1,27 +1,287 @@
 /* Google Fonts must come before Tailwind directives */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* ─── Design Tokens ─────────────────────────────────── */
+:root {
+  --sky-top: #0a1028;
+  --sky-mid: #1a1f4d;
+  --sky-low: #3b2a62;
+  --horizon: #8a3a5e;
+  --ember: #ff7849;
+  --ember-glow: #ffb37a;
+  --sun: #ffd166;
+
+  --ink: #0a0f24;
+  --ink-2: #131a38;
+  --paper: #f6efe3;
+  --muted: rgba(255,255,255,0.62);
+  --muted-2: rgba(255,255,255,0.38);
+  --line: rgba(255,255,255,0.12);
+  --line-2: rgba(255,255,255,0.06);
+
+  --teal: #5eead4;
+  --teal-dim: #2dd4bf;
+  --violet: #a78bfa;
+  --pink: #f472b6;
+  --gold: #fbbf24;
+
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 24px;
+  --r-xl: 32px;
+
+  --f-display: 'Space Grotesk', system-ui, sans-serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
+
+/* ─── Reset ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body, #root {
   height: 100%;
   width: 100%;
+  overflow: hidden;
 }
 
 body {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--f-display);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: var(--sky-top);
+  color: #fff;
 }
 
-code {
-  font-family: 'JetBrains Mono', monospace;
+/* ─── App Layout ─────────────────────────────────────── */
+#root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── Screen ─────────────────────────────────────────── */
+.screen {
+  position: relative;
+  width: 100%;
+  max-width: 402px;
+  height: 100%;
+  max-height: 874px;
+  overflow: hidden;
+}
+
+@media (min-height: 880px) {
+  .screen {
+    border-radius: 48px;
+    box-shadow: 0 0 0 2px #1a1a22, 0 0 0 14px #0a0a0f, 0 40px 120px rgba(0,0,0,0.5);
+  }
+}
+
+.sky-dusk {
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 100%, rgba(255,120,73,0.45) 0%, rgba(138,58,94,0.4) 25%, transparent 55%),
+    radial-gradient(ellipse 80% 60% at 30% 90%, rgba(255,179,122,0.35) 0%, transparent 40%),
+    linear-gradient(180deg, #0a1028 0%, #1a1f4d 35%, #3b2a62 60%, #8a3a5e 82%, #ff7849 100%);
+}
+
+.sky-night {
+  background: linear-gradient(180deg, #050810 0%, #0a1028 40%, #1a1f4d 100%);
+}
+
+/* ─── Scrollable content ─────────────────────────────── */
+.scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.scroll::-webkit-scrollbar { display: none; }
+
+/* ─── Typography ─────────────────────────────────────── */
+.h-display { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+.h-title   { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
+.h-section { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-2); }
+.body      { font-size: 15px; color: var(--muted); line-height: 1.5; }
+.mono      { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+/* ─── Layout helpers ─────────────────────────────────── */
+.col     { display: flex; flex-direction: column; }
+.row     { display: flex; flex-direction: row; align-items: center; }
+.between { justify-content: space-between; }
+.center  { justify-content: center; align-items: center; }
+
+/* ─── Spacing shortcuts ──────────────────────────────── */
+.p-4 { padding: 16px; }
+.p-5 { padding: 20px; }
+.p-6 { padding: 24px; }
+.gap-1 { gap: 4px; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.gap-6 { gap: 24px; }
+.flex-1 { flex: 1; }
+
+/* ─── Glass cards ────────────────────────────────────── */
+.glass {
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+  border-radius: var(--r-lg);
+}
+
+.glass-dark {
+  background: rgba(8,10,24,0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+  border-radius: var(--r-lg);
+}
+
+/* ─── Buttons ────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border: none; cursor: pointer; font-family: var(--f-display);
+  font-size: 16px; font-weight: 700; border-radius: 999px;
+  padding: 14px 24px; transition: opacity .15s, transform .1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: linear-gradient(180deg, #ff8a5c 0%, #ff6b3d 100%);
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,179,122,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    0 10px 30px rgba(255,120,73,0.35),
+    0 2px 6px rgba(0,0,0,0.2);
+}
+
+.btn-ghost {
+  background: rgba(255,255,255,0.06);
+  color: var(--muted);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+}
+
+/* ─── Chips ──────────────────────────────────────────── */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  font-size: 12px; font-weight: 600;
+  color: var(--muted);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+  white-space: nowrap;
+}
+
+.chip-ember {
+  color: #ffd6bf;
+  background: rgba(255,120,73,0.18);
+  box-shadow: inset 0 0 0 1px rgba(255,120,73,0.35);
+}
+
+.chip-teal {
+  color: #a7f3d7;
+  background: rgba(94,234,212,0.14);
+  box-shadow: inset 0 0 0 1px rgba(94,234,212,0.3);
+}
+
+/* ─── Meter / progress bar ───────────────────────────── */
+.meter {
+  height: 8px; border-radius: 4px;
+  background: rgba(255,255,255,0.1);
+  overflow: hidden;
+}
+.meter > .fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal), var(--teal-dim));
+  transition: width .5s cubic-bezier(.2,.8,.2,1);
+}
+.meter.ember > .fill {
+  background: linear-gradient(90deg, var(--ember-glow), var(--ember));
+}
+
+/* ─── Status bar ─────────────────────────────────────── */
+.statusbar {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 54px; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 24px 0;
+  font-family: var(--f-display); font-size: 15px; font-weight: 700;
+  pointer-events: none;
+}
+.statusbar .icons { display: flex; align-items: center; gap: 6px; }
+
+/* ─── Skyline ─────────────────────────────────────────── */
+.skyline {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  width: 100%; pointer-events: none; z-index: 1;
+}
+
+/* ─── Stars ──────────────────────────────────────────── */
+.star {
+  position: absolute; border-radius: 50%;
+  background: #fff;
+  animation: twinkle 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* ─── Orb ────────────────────────────────────────────── */
+.orb {
+  position: relative; border-radius: 50%; flex-shrink: 0;
+  background: radial-gradient(circle at 35% 30%, #ffd6bf 0%, #ff9a7a 30%, #ff6b3d 60%, #7a2a1a 100%);
+  box-shadow:
+    0 0 30px rgba(255,120,73,0.7),
+    0 0 60px rgba(255,120,73,0.4),
+    inset -4px -4px 12px rgba(122,42,26,0.6),
+    inset 2px 2px 4px rgba(255,255,255,0.4);
+  animation: glowPulse 3s ease-in-out infinite;
+}
+@keyframes glowPulse {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(255,120,73,0.6)); }
+  50%       { filter: drop-shadow(0 0 16px rgba(255,120,73,0.9)); }
+}
+
+/* ─── Tab bar ────────────────────────────────────────── */
+.tabbar {
+  position: absolute; bottom: 22px; left: 16px; right: 16px;
+  height: 64px; z-index: 40;
+  border-radius: 32px;
+  background: rgba(10,12,30,0.72);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08), 0 20px 50px rgba(0,0,0,0.4);
+  display: flex; align-items: center; padding: 0 8px;
+}
+.tabbar button {
+  flex: 1; height: 52px; background: none; border: none;
+  color: var(--muted-2); cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  font-family: var(--f-display); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.04em; position: relative;
+  transition: color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tabbar button.active { color: #fff; }
+.tabbar button.active::before {
+  content: ''; position: absolute; top: 6px;
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--ember); box-shadow: 0 0 8px var(--ember);
+}
+
+/* ─── Scene animation ────────────────────────────────── */
+.scene-enter { animation: sceneIn .45s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes sceneIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.995); }
+  to   { opacity: 1; transform: none; }
 }

@@ -1,47 +1,74 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { OnboardingScene } from './scenes/Onboarding'
+import { LobbyScene, type Player, type Progress } from './scenes/Lobby'
+import { WorldScene } from './scenes/World'
+import { ProgressScene } from './scenes/Progress'
+
+type Scene = 'onboarding' | 'lobby' | 'world' | 'progress' | 'raid'
+
+const DEFAULT_PROGRESS: Progress = {
+  confidence: 62,
+  streak: 7,
+  mission: 3,
+  totalMissions: 7,
+}
 
 export default function App() {
-  const [isOnline, setIsOnline] = useState(navigator.onLine)
+  const [scene, setScene] = useState<Scene>('onboarding')
+  const [player, setPlayer] = useState<Player>({ name: 'Gaurav', intent: 'concept' })
+  const [progress] = useState<Progress>(DEFAULT_PROGRESS)
 
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true)
-    const handleOffline = () => setIsOnline(false)
-
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-
-    return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-    }
-  }, [])
+  function handleNav(id: 'home' | 'world' | 'raid' | 'progress') {
+    const map: Record<string, Scene> = { home: 'lobby', world: 'world', raid: 'raid', progress: 'progress' }
+    setScene(map[id] as Scene)
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-dusk-900 via-dusk-800 to-dusk-900 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-ember-500 mb-4">
-          Zentri — The Dusk Caravan
-        </h1>
-        <p className="text-dusk-300 mb-6 text-lg">
-          Foundation initialized. Loading journey...
-        </p>
+    <>
+      {scene === 'onboarding' && (
+        <OnboardingScene
+          onDone={({ name, intent }) => {
+            setPlayer({ name, intent })
+            setScene('lobby')
+          }}
+        />
+      )}
 
-        <div className="flex gap-4 justify-center mb-8">
-          <div className={`px-4 py-2 rounded backdrop-blur ${isOnline ? 'bg-teal-500/20 text-teal-300' : 'bg-ember-500/20 text-ember-300'}`}>
-            {isOnline ? '🟢 Online' : '🔴 Offline'}
-          </div>
-          <div className="px-4 py-2 rounded backdrop-blur bg-dusk-700/50 text-dusk-200">
-            PWA Ready
-          </div>
-        </div>
+      {scene === 'lobby' && (
+        <LobbyScene
+          player={player}
+          progress={progress}
+          onNav={handleNav}
+          onEnterWorld={() => setScene('world')}
+          onMultiplayer={() => setScene('raid')}
+        />
+      )}
 
-        <div className="space-y-2 text-sm text-dusk-400 max-w-md">
-          <p>✓ Vite + React + TypeScript</p>
-          <p>✓ Supabase connected</p>
-          <p>✓ Service Worker ready</p>
-          <p>✓ Offline-first architecture</p>
-        </div>
-      </div>
-    </div>
+      {scene === 'world' && (
+        <WorldScene
+          onBack={() => setScene('lobby')}
+          onNav={handleNav}
+        />
+      )}
+
+      {scene === 'progress' && (
+        <ProgressScene
+          onBack={() => setScene('lobby')}
+          onNav={handleNav}
+          confidence={progress.confidence}
+          streak={progress.streak}
+        />
+      )}
+
+      {scene === 'raid' && (
+        <LobbyScene
+          player={player}
+          progress={progress}
+          onNav={handleNav}
+          onEnterWorld={() => setScene('world')}
+          onMultiplayer={() => setScene('lobby')}
+        />
+      )}
+    </>
   )
 }
