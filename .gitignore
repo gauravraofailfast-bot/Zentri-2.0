@@ -34,3 +34,4 @@ sprintup-eecbe-firebase-adminsdk*.json
 # Legacy
 /legacy
 /project (archive)
+.vercel
