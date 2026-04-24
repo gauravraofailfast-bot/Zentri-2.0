@@ -1,10 +1,6 @@
 /**
  * TapIdentify mechanic
  * Player taps the correct labelled element (side of a triangle, angle, etc.)
- *
- * Config shape:
- *   targets: Array<{ side: string; angle: number }>
- *   angle_range: number[]
  */
 
 import { useState, useCallback } from 'react'
@@ -45,15 +41,14 @@ export function TapIdentify({ config, onComplete }: Props) {
   const current = targets[round]
   const angle = current?.angle ?? 30
 
-  // Triangle vertices (right angle at bottom-right)
   const W = 280
   const H = 200
   const adj = W * 0.6
   const opp = H * 0.7
 
-  const A = { x: 40, y: H - 20 }           // vertex with θ
-  const B = { x: A.x + adj, y: A.y }       // right angle
-  const C = { x: B.x, y: B.y - opp }       // top
+  const A = { x: 40, y: H - 20 }
+  const B = { x: A.x + adj, y: A.y }
+  const C = { x: B.x, y: B.y - opp }
 
   const sides: Record<string, { x1: number; y1: number; x2: number; y2: number }> = {
     adjacent:   { x1: A.x, y1: A.y, x2: B.x, y2: B.y },
@@ -66,7 +61,7 @@ export function TapIdentify({ config, onComplete }: Props) {
       if (feedback) return
       const isCorrect = side === current.side
       setFeedback(isCorrect ? 'correct' : 'wrong')
-      if (isCorrect) setCorrect((n) => n + 1)
+      if (isCorrect) setCorrect(n => n + 1)
 
       setTimeout(() => {
         setFeedback(null)
@@ -78,52 +73,46 @@ export function TapIdentify({ config, onComplete }: Props) {
         }
       }, 700)
     },
-    [feedback, current, round, targets.length, correct, onComplete]
+    [feedback, current, round, targets.length, correct, onComplete],
   )
 
   if (!current) return null
 
   return (
-    <div className="flex flex-col items-center gap-4 p-4">
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: 16 }}>
       {/* Progress */}
-      <div className="text-xs text-ember-400 font-mono tracking-widest uppercase">
+      <div className="mono" style={{ fontSize: 10, color: 'var(--ember-glow)', letterSpacing: '0.2em' }}>
         {round + 1} / {targets.length}
       </div>
 
       {/* Prompt */}
-      <p className="text-dusk-100 text-center font-medium text-sm px-4">
+      <p style={{ color: 'rgba(255,255,255,0.85)', textAlign: 'center', fontWeight: 500, fontSize: 14, padding: '0 8px' }}>
         {PROMPTS[current.side]}
       </p>
 
       {/* Triangle SVG */}
-      <svg width={W} height={H} className="overflow-visible">
-        {/* Draw each side as a clickable area */}
-        {(Object.keys(sides) as Array<keyof typeof sides>).map((side) => {
+      <svg width={W} height={H} style={{ overflow: 'visible' }}>
+        {(Object.keys(sides) as Array<keyof typeof sides>).map(side => {
           const s = sides[side]
           const isFeedback = feedback && side === current.side
           return (
-            <g key={side} onClick={() => handleTap(side)} className="cursor-pointer">
-              <line
-                x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2}
-                strokeWidth={12}
-                stroke="transparent"
-              />
+            <g key={side} onClick={() => handleTap(side)} style={{ cursor: 'pointer' }}>
+              <line x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2} strokeWidth={12} stroke="transparent"/>
               <line
                 x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2}
                 strokeWidth={4}
                 stroke={
                   isFeedback
-                    ? feedback === 'correct' ? '#7cffb6' : '#ffd166'
-                    : '#c4a882'
+                    ? feedback === 'correct' ? '#5eead4' : '#fbbf24'
+                    : 'rgba(255,255,255,0.55)'
                 }
                 strokeLinecap="round"
-                className="transition-all duration-200"
+                style={{ transition: 'stroke 0.2s' }}
               />
-              {/* Mid-point label */}
               <text
-                x={(s.x1 + s.x2) / 2 + (side === 'opposite' ? 14 : 0)}
+                x={(s.x1 + s.x2) / 2 + (side === 'opposite' ? 16 : 0)}
                 y={(s.y1 + s.y2) / 2 + (side === 'adjacent' ? 18 : -8)}
-                fill="#e8d5b5"
+                fill="rgba(255,255,255,0.7)"
                 fontSize={11}
                 textAnchor="middle"
                 fontFamily="JetBrains Mono, monospace"
@@ -133,21 +122,17 @@ export function TapIdentify({ config, onComplete }: Props) {
             </g>
           )
         })}
-
-        {/* Angle arc */}
-        <text x={A.x + 18} y={A.y - 8} fill="#f4a261" fontSize={14}>θ={angle}°</text>
-
-        {/* Right-angle marker */}
-        <rect x={B.x - 12} y={B.y - 12} width={10} height={10} fill="none" stroke="#c4a882" strokeWidth={1.5} />
+        <text x={A.x + 18} y={A.y - 8} fill="var(--ember-glow)" fontSize={14}>θ={angle}°</text>
+        <rect x={B.x - 12} y={B.y - 12} width={10} height={10} fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth={1.5}/>
       </svg>
 
-      {/* Feedback banner */}
+      {/* Feedback */}
       {feedback && (
-        <div
-          className={`text-sm font-semibold px-4 py-1 rounded-full ${
-            feedback === 'correct' ? 'text-green-300 bg-green-900/40' : 'text-yellow-300 bg-yellow-900/40'
-          }`}
-        >
+        <div style={{
+          fontSize: 13, fontWeight: 600, padding: '6px 16px', borderRadius: 20,
+          color: feedback === 'correct' ? 'var(--teal)' : 'var(--gold)',
+          background: feedback === 'correct' ? 'rgba(94,234,212,0.12)' : 'rgba(251,191,36,0.12)',
+        }}>
           {feedback === 'correct' ? '✓ That\'s it!' : 'Close! Try the other sides.'}
         </div>
       )}
