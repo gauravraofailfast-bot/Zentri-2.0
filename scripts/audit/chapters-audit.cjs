@@ -11,15 +11,21 @@ const { createClient } = require('/Users/gauravrao/Zentri-2.0/node_modules/@supa
 const path = require('path');
 const fs = require('fs');
 
+// Load env vars from .env.local (never hardcode secrets)
+require('dotenv').config({ path: path.join(__dirname, '../../.env.local') });
+
 // ── Config ────────────────────────────────────────────────────────────────────
 const SERVICE_ACCOUNT_PATH = path.join(
   process.env.HOME,
   'Downloads/sprintup-eecbe-firebase-adminsdk-fbsvc-1a7f1d53de.json'
 );
 
-const SUPABASE_URL = 'https://ynpkjsfnapbhwjmkrfzc.supabase.co';
-const SUPABASE_SERVICE_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlucGtqc2ZuYXBiaHdqbWtyZnpjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjkzMjYxNywiZXhwIjoyMDkyNTA4NjE3fQ.1cnZApxRKTd7XeMT6Pee4ZfaCSRi-k0EFqTwiMo7MlM';
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.VITE_SUPABASE_SERVICE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+  throw new Error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_SERVICE_KEY in .env.local');
+}
 
 const SUBJECTS = ['mathematics_basic', 'mathematics_standard'];
 const EXAM_ID = 'cbse_class_10';
